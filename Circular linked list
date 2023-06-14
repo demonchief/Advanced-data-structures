@@ -1,0 +1,123 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+struct node{
+	int coef;
+	int power;
+	struct node *next;
+};
+
+void create(struct node *head){
+	int ch;
+	struct node *temp,*curr;
+	temp = head;
+	do{
+		curr = (struct node *) malloc(sizeof(struct node));
+		printf("\n\nenter coeff and its power: ");
+		scanf("%d",&curr->coef);
+		scanf("%d",&curr->power);
+		curr->next = head;
+		temp->next = curr;
+		temp = curr;
+		printf("do you want to add another node? y:1 n:0  ");
+		scanf("%d",&ch);
+	}while(ch==1);
+}
+
+void display(struct node *head){
+	struct node *curr;
+	curr = head->next;
+	while (curr != head){
+		printf("%dx^%d + ",curr->coef,curr->power);
+		curr = curr->next;
+	}
+}
+
+void add(struct node *h1,struct node *h2,struct node *h3){
+	struct node *t1,*t2,*t3,*temp;
+	t1 = h1->next;
+	t2 = h2->next;
+	t3 = h3;
+	
+	while(t1->power != -1 || t2->power != -1){
+		if(t1->power > t2->power){
+			temp = (struct node *) malloc(sizeof(struct node));
+			temp->coef = t1->coef;
+			temp->power = t1->power;
+			temp->next = h3;
+			t3->next = temp;
+			t3 = temp;
+			t1 = t1->next;
+		}
+		else if(t1->power < t2->power){
+			temp = (struct node *) malloc(sizeof(struct node));
+			temp->coef = t2->coef;
+			temp->power = t2->power;
+			temp->next = h3;
+			t3->next = temp;
+			t3 = temp;
+			t2 = t2->next;
+		}
+		else if(t1->power == t2->power){
+			temp = (struct node *) malloc(sizeof(struct node));
+			temp->coef = t1->coef + t2->coef;
+			temp->power = t1->power;
+			temp->next = h3;
+			t3->next = temp;
+			t3 = temp;
+			t2 = t2->next;
+			t1 = t1->next;
+		}
+	}
+}
+
+/*int pow(int x,int p){
+	int product=1;
+	for (int i=0;i<p;i++){
+		product = product * x;
+	}
+	return product;
+}*/
+
+int evaluate(struct node *head, int x){
+	int sum = 0;
+	struct node *curr;
+	curr = head->next;
+	while(curr != head){
+		sum = sum + curr->coef * pow(x,curr->power);
+		curr = curr->next;
+	}
+	return sum;
+}
+
+int main(){
+	int val;
+	struct node *head1;
+	head1 = (struct node *) malloc(sizeof(struct node));
+	head1->power = -1;
+	head1->next = head1;
+	create(head1);
+	display(head1);
+	
+	struct node *head2;
+	head2 = (struct node *) malloc(sizeof(struct node));
+	head2->power = -1;
+	head2->next = head2;
+	create(head2);
+	display(head1);
+	display(head2);
+	
+	struct node *head3;
+	head3 = (struct node *) malloc(sizeof(struct node));
+	head3->power = -1;
+	add(head1,head2,head3);
+	printf("\n\nadded polynomial is: \n");
+	display(head3);
+	
+	
+	printf("\n\nenter value of x: ");
+	scanf("%d",&val);
+	printf("\nvalue of the 1st polynomial is: %d\n",evaluate(head1,val));
+	
+	return 0;
+}
