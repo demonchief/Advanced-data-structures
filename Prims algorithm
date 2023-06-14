@@ -1,0 +1,101 @@
+#include<iostream>
+using namespace std;
+#define MAX 20
+
+class graph{
+	private:
+	int cost[MAX][MAX];
+	int cities;
+	public:
+	graph(){
+		cities=0;
+		cout<<"\nenter number of cities: ";
+		cin>>cities;
+		
+		for(int i=0;i<cities;i++){
+			for(int j=0;j<cities;j++){
+				cost[i][j] = 999;
+			}
+		}
+	
+	}
+	void create(){
+		char c;
+		for (int i=0;i<cities;i++){
+			for(int j=i+1;j<cities;j++){
+				cout<<"\nis there an edge between "<<i<<" and "<<j<<" ? : ";
+				cin>>c;
+				if(c=='y'){
+					cout<<"enter cost of edge "<<i<<"--"<<j<<" : ";
+					cin>>cost[i][j];
+					cost[j][i] = cost[i][j];
+				}
+			}
+			//cout<<endl;
+		}
+	}
+	
+	void display(){
+		cout<<"\nadjacency matrix is: \n";
+		for (int i=0;i<cities;i++){
+			for(int j=0;j<cities;j++){
+				cout<<cost[i][j]<<"\t";
+			}
+			cout<<endl;
+		}
+	}
+	
+	void prims(){
+		int nearest[MAX];
+		int stv;
+		int r=0;
+		int tree[MAX][2];
+		int mincost;
+		mincost=0;
+		cout<<"\nenter starting vertex: ";
+		cin>>stv;
+		for(int i=0;i<cities;i++){
+			nearest[i] = stv;
+		}
+		nearest[stv]=-1;
+		int n=cities-1;
+		int j,min;
+		for(int i=0;i<n;i++){
+			min =999;
+			for(int k =0;k<cities;k++){
+				if(nearest[k]!=-1 and cost[k][nearest[k]]<min){
+					j = k;
+					min = cost[k][nearest[k]];
+				} 
+			}
+			
+			tree[r][0] = j;
+			tree[r][1] = nearest[j];
+			mincost = mincost + cost[j][nearest[j]];
+			nearest[j]=-1;
+			r++;
+			
+			for(int k = 0;k<cities;k++){
+				if(nearest[k]!=-1 and cost[k][j]< cost[k][nearest[k]]){
+					nearest[k] = j;
+				}
+			}
+			
+		}
+		cout<<"\ncost of spanning tree is: "<<mincost<<endl;
+		for(int i=0;i<n;i++){
+			cout<<tree[i][0]<<"\t"<<tree[i][1]<<endl;
+		}
+		cout<<endl;
+	}
+};
+
+
+int main(){
+	cout<<"jello world\n";
+	graph g;
+	g.create();
+	g.display();
+	g.prims();
+	return 0;
+}
