@@ -1,0 +1,343 @@
+#include<iostream>
+#include<string.h>
+using namespace std;
+
+class dnode{
+	private:
+	string word;
+	string mean;
+	dnode *left;
+	dnode *right;
+	public:
+	friend class dictionary;
+};
+
+class dictionary{
+	private:
+	dnode *root;
+	public:
+	dictionary(){
+		root = NULL;
+	}
+	void create();
+	void display();
+	void mirror();
+	dnode *parent(dnode *);
+	dnode *search(string);
+	void del(string);
+	dnode *successor(dnode *);
+	void copy_r();
+	dnode *copy_r(dnode *);
+	
+};
+
+class queue{
+	private:
+	dnode *q[30];
+	int front,rear;
+	public:
+	void insert(dnode *);
+	dnode *del();
+	queue(){
+		front = -1;
+		rear = -1;
+	}
+	friend class dictionary;
+};
+
+void queue::insert(dnode *ele){
+	if (rear == 29){
+		cout<<"\nqueue is full";
+	}
+	else {
+		rear = rear +1;
+		q[rear] = ele;
+	}
+}
+
+dnode *queue::del(){
+	dnode *ele;
+	if (rear == front) cout<<"\nqueue is empty";
+	else{
+	front = front +1;
+	ele = q[front];
+	return ele;
+	}
+}
+
+void dictionary::create(){
+	int ch;
+	dnode *curr,*temp;
+	int flag,i;
+	if (root == NULL){
+		root = new dnode;
+		root->left = NULL;
+		root->right = NULL;
+		cout<<"\nenter word for root and its meaning: ";
+		cin>>root->word;
+		getline(cin,root->mean);
+	}
+	
+	do {
+		temp = root;
+		flag = 0;
+		curr = new dnode;
+		curr->left = NULL;
+		curr->right = NULL;
+		cout<<"\nenter word and its meaning: ";
+		cin>>curr->word;
+		getline(cin,curr->mean);
+		
+		while(flag == 0){
+			if(curr->word < temp->word){
+				if(temp->left ==NULL){
+					temp->left = curr;
+					flag =1;
+				}
+				temp = temp->left;
+			}
+			else if(curr->word > temp->word){
+				if(temp->right ==NULL){
+					temp->right = curr;
+					flag = 1;
+				}
+				temp = temp->right;
+			}
+		}
+		cout<<"\ndo you want to add another node? 1:yes ";
+		cin>>ch;
+	}while(ch==1);
+}
+
+void dictionary::display(){
+	queue q;
+	dnode *temp;
+	int p,r;
+	p=1;
+	r=0;
+	temp=root;
+	if (root == NULL){
+		cout<<"\nno word in dictionary\n";
+	}
+	else q.insert(root);
+	cout<<endl;
+	while(q.rear != q.front){
+		for(int i=0;i<p;i++){
+			temp = q.del();
+			cout<<temp->word<<":"<<temp->mean<<"\t";
+			if(temp->left != NULL){
+				q.insert(temp->left);
+				r++;
+			}
+			if(temp->right != NULL){
+				q.insert(temp->right);
+				r++;
+			}
+		}
+		cout<<endl;
+		p=r;
+		r=0;
+	}
+}
+
+void dictionary::mirror(){
+	queue q;
+	dnode *temp,*t;
+	if(root == NULL){
+		cout<<"\nno word in dictionary";
+	}
+	else q.insert(root);
+	cout<<endl;
+	while(q.rear != q.front){
+		temp = q.del();
+		t = temp->left;
+		temp->left = temp->right;
+		temp->right = t;
+		if(temp->left != NULL) q.insert(temp->left);
+		if(temp->right != NULL) q.insert(temp->right);
+	}
+}
+
+dnode *dictionary::parent(dnode *sword){
+	dnode *temp;
+	temp = root;
+	int flag;
+	flag = 0;
+	while(flag == 0){
+		if(sword->word < temp->word){
+			if(temp->left->word == sword->word){
+				flag = 1;
+			}
+			else temp= temp->left;
+		}
+		if(sword->word > temp->word){
+			if(temp->right->word == sword->word){
+				flag = 1;
+			}
+			else temp = temp->right;
+		}
+	}
+	return temp;
+}
+
+dnode *dictionary::search(string sword){
+	dnode *temp,*snode;
+	temp=root;
+	snode = root;
+	int flag;
+	flag =0;
+	if (sword == root->word){
+		flag =1;
+		snode = root;
+	}
+	while(flag == 0){
+		if(sword < temp->word){
+			if(temp->left->word == sword){
+				snode = temp->left;
+				flag = 1;
+			}
+			else temp= temp->left;
+		}
+		if(sword > temp->word){
+			if(temp->right->word == sword){
+				snode = temp->right;
+				flag = 1;
+			}
+			else temp = temp->right;
+		}
+	}
+	return snode;
+
+}
+
+
+dnode *dictionary::successor(dnode *w){
+	dnode *s;
+	s = w;
+	if(s->right !=NULL){
+		s= s->right;
+	}
+	while(s->left != NULL){
+		s = s->left;
+	}
+	return s;
+}
+
+void dictionary::del(string dword){
+	dnode *w;
+	w = search(dword);
+	dnode *parentnode,*s,*temp;
+	if(w==root){
+		if (w->right == NULL) root = root->left;
+		else if(w->left == NULL) root = root->right;
+		else if(w->right != NULL && w->left != NULL){
+			temp = w->left; 
+			root = w->right;
+			s = successor(w); 
+			s->left = temp;
+		}
+	}
+	else if(w->left==NULL && w->right != NULL){
+		parentnode = parent(w);
+		if(parentnode->left == w){
+			parentnode->left = w->right;
+			delete w;
+		}
+		else if(parentnode->right == w){
+			parentnode->right = w->right;
+			delete w;
+		}
+	}
+	else if(w->right == NULL && w->left != NULL){
+		parentnode = parent(w);
+		if(parentnode->left == w){
+			parentnode->left = w->left;
+			delete w;
+		}
+		else if(parentnode->right == w){
+			parentnode->right = w->left;
+			delete w;
+		}
+	}
+	else if(w->left != NULL && w->right != NULL){
+		temp = w->left;
+		s = successor(w);
+		s->left = temp;
+		parentnode = parent(w);
+		if(parentnode->left == w){
+			parentnode->left = w->right;
+			delete w;
+		}
+		else if(parentnode->right == w){
+			parentnode->right = w->right;
+			delete w;
+		}
+	}
+	else if (w->left ==NULL && w->right == NULL){
+		parentnode = parent(w);
+		if(parentnode->left == w){
+			parentnode->left = NULL;
+			delete w;
+		}
+		else if(parentnode->right == w){
+			parentnode->right = NULL;
+			delete w;
+		}
+	}
+
+}
+
+void dictionary::copy_r(){
+	dictionary d1;
+	d1.root = copy_r(root);
+	cout<<"\ncopy tree is: \n";
+	d1.display(); 
+}
+
+dnode *dictionary::copy_r(dnode *r){
+	dnode *temp;
+	temp = NULL;
+	if (r != NULL){
+		temp = new dnode;
+		temp->word = r->word;
+		temp->mean = r->mean;
+		temp->left = copy_r(r->left);
+		temp->right = copy_r(r->right);
+	}
+	return temp;
+}
+
+
+int main(){
+
+	dictionary d;
+	int ch;
+	string word;
+	do {
+		cout<<"\nchoose operation: \n1:create dictionary \n2:display \n3:delete a word \n4:mirror \n5:copy \nyour choice: ";
+		cin>>ch;
+		
+		switch(ch){
+			case 1:
+				d.create();
+				break;
+			case 2:
+				d.display();
+				break;
+			case 3:
+				cout<<"\nenter word to delete: ";
+				cin>>word;
+				d.del(word);
+				break;
+			case 4:
+				d.mirror();
+				break;
+			case 5:
+				d.copy_r();
+				break;
+		}
+	}while(ch<6);
+	
+	
+	return 0;
+}
