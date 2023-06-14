@@ -1,0 +1,75 @@
+#include<iostream>
+#define MAX 30
+using namespace std;
+
+class Heap{
+	int heap[MAX];
+	int n;
+	public:
+	void accept(){
+		cout<<"\nenter number of students: ";
+		cin>>n;
+		cout<<"\nenter marks: ";
+		for(int i=0;i<n;i++){
+			cin>>heap[i];
+		}
+	}
+
+	void display(){
+		cout<<"\nheap array is: ";
+
+		for(int i=0;i<8;i++){
+			cout<<heap[i]<<"\t";
+		}
+	}
+
+	void adjust(int i){
+		int j;
+		int temp;
+		while(((2*i)+1)<n){
+			j = 2*i+1;
+
+			if(j+1<n && (heap[j+1]>heap[j]) ){
+				j++;
+			}
+			if(heap[i]>heap[j]) break;
+			else{
+				temp = heap[i];
+				heap[i] = heap[j];
+				heap[j] = temp;
+				i=j;
+			}
+		}
+	}
+
+	void heapSort(){
+		int t;
+		for(int i=n/2-1; i>=0;i--){
+			adjust(i);
+		}
+		cout<<"\nHEAP CREATED\n";
+		display();
+		cout<<endl;
+		while(n>=1){
+			t = heap[0];
+			heap[0] = heap[n-1];
+			heap[n-1] = t;
+			n--;
+			adjust(0);
+			
+		}
+		cout<<"\nAFTER HEAP SORT\n";
+		display();
+		
+	}
+};
+
+int main(){
+	cout<<"jello world\n";
+
+	Heap h;
+	h.accept();
+	h.heapSort();
+	cout<<endl;
+	return 0;
+}
