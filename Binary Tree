@@ -1,0 +1,276 @@
+#include<iostream>
+using namespace std;
+
+class treenode{
+	private:
+	char data;
+	class treenode *left;
+	class treenode *right;
+	public:
+	friend class tree;
+};
+
+class tree{
+	treenode *root;
+	public:
+	void create_nr();
+	tree(){
+		root = NULL;
+	}
+	void traversal_ldr();
+	void traversal_ldr(treenode *);
+	void traversal_dlr();
+	void traversal_dlr(treenode *);
+	void traversal_lrd();
+	void traversal_lrd(treenode *);
+	void create_r();
+	void create_r(treenode *);
+	void traversal_nr();
+	void traversal_nr_preorder();
+	void traversal_nr_postorder();
+};
+
+class stack{
+	private:
+	int top;
+	treenode *sdata[30];
+	public:
+	
+	stack(){
+		top =-1;
+	}
+	void push(treenode *data){
+		if (top ==29) cout<<"\nstack is full";
+		else {
+			top = top +1;
+			sdata[top] = data;
+		}
+	}
+	treenode *pop(){
+		treenode *popped_ele;
+		if(top ==-1) cout<<"\nstack is empty";
+		else{
+			popped_ele = sdata[top];
+			top = top -1;
+			return popped_ele;
+		}
+	}
+	friend class tree;
+};
+
+void tree::traversal_nr(){
+	stack st;
+	treenode *temp;
+	temp=root;
+	while(1){
+		while(temp!=NULL){
+			st.push(temp);
+			temp = temp->left;
+		}
+		if (st.top==-1) break;
+		temp = st.pop();
+		cout<<temp->data<<"\t";
+		temp= temp->right;
+	}
+}
+
+void tree::traversal_nr_preorder(){
+	stack st;
+	treenode *temp;
+	temp=root;
+	while(1){
+		while(temp!=NULL){
+			cout<<temp->data<<"\t";
+			st.push(temp);
+			temp = temp->left;
+		}
+		if (st.top==-1) break;
+		temp = st.pop();
+		temp= temp->right;
+	}
+}
+
+void tree::traversal_nr_postorder(){
+	stack st;
+	treenode *temp;
+	temp = root;
+	while(1){
+		while(temp!=NULL){
+			st.push(temp);
+			temp=temp->left;
+		}
+		if (st.sdata[st.top]->right ==NULL){
+			temp = st.pop();
+			cout<<temp->data<<"\t";
+		}
+		while(st.top != -1 && st.sdata[st.top]->right == temp){
+			temp = st.pop();
+			cout<<temp->data<<"\t";
+		}
+		if (st.top == -1) break;
+		temp = st.sdata[st.top]->right;
+	}
+}
+
+void tree::create_r(){
+	if (root == NULL){
+		root = new treenode;
+		root->left = NULL;
+		root->right = NULL;
+		cout<<"\nenter data of root: ";
+		cin>>root->data;
+	}
+	create_r(root);
+}
+
+
+void tree::create_r(treenode *temp){
+	int c1,c2;
+	treenode *curr;
+	cout<<"\ndo you want to add to left of "<<temp->data<<"\n";
+	cin>>c1;
+	if (c1 == 1){
+		curr = new treenode;
+		curr->left = NULL;
+		curr->right = NULL;
+		cout<<"\nenter data of new node: ";
+		cin>>curr->data;
+		temp->left = curr;
+		create_r(curr);
+	}
+	cout<<"\ndo you want to add to right of "<<temp->data<<"\n";
+	cin>>c2;
+	if (c2 == 1){
+		curr = new treenode;
+		curr->left = NULL;
+		curr->right = NULL;
+		cout<<"\nenter data of new node: ";
+		cin>>curr->data;
+		temp->right = curr;
+		create_r(curr);
+	}
+}
+
+void tree::traversal_ldr(){ //driver function
+	cout<<"\nin order traversal: ";
+	traversal_ldr(root);
+}
+
+void tree::traversal_dlr(){
+	cout<<"\npre order traversal: ";
+	traversal_dlr(root);
+}
+
+void tree::traversal_lrd(){
+	cout<<"\npost order traversal: ";
+	traversal_lrd(root);
+}
+
+void tree::traversal_ldr(treenode *temp){
+	if (temp!=NULL){
+		traversal_ldr(temp->left);
+		cout<<temp->data<<"\t";
+		traversal_ldr(temp->right);
+	}
+}
+
+void tree::traversal_dlr(treenode *temp){
+	if (temp!=NULL){
+		cout<<temp->data<<"\t";
+		traversal_dlr(temp->left);
+		traversal_dlr(temp->right);
+	}
+}
+
+void tree::traversal_lrd(treenode *temp){
+	if (temp!=NULL){
+		traversal_lrd(temp->left);
+		traversal_lrd(temp->right);
+		cout<<temp->data<<"\t";
+	}
+}
+
+void tree::create_nr(){
+	int ch,flag;
+	char c;
+	treenode *temp,*curr;
+	if (root==NULL){
+		root = new treenode;
+		root->left = NULL;
+		root->right = NULL;
+		cout<<"enter data of root: ";
+		cin>>root->data;
+	}
+	do{
+	
+		temp = root;
+		curr = new treenode;
+		cout<<"enter data of node: ";
+		cin>>curr->data;
+		curr->left=NULL;
+		curr->right=NULL;
+		flag = 0;
+	
+		while (flag ==0){
+			cout<<"add to the left or right of "<<temp->data<<"\n";
+			cin>>c;
+			if(c=='l'){
+				if (temp->left == NULL){
+					temp->left = curr;
+					flag = 1;
+				}
+				temp = temp->left;
+			}
+			else{
+				if (temp->right ==NULL){
+					temp->right = curr;
+					flag = 1;
+				}
+				temp = temp->right;
+			}
+		}
+		cout<<"do you want to add another node? 1 for yes: ";
+		cin>>ch;
+	}while(ch==1);
+}
+int main(){
+	cout<<"hello world\n\n";
+	tree bt;
+	int ch;
+
+	do{
+		cout<<"\nchoose operation \n1:non-recursive creation \n2:recursive creation \n3:recursive in-order traversal \n4:recursive pre-order traversal \n5:recursive post-order traversal \n6:non-recursive in-order traversal \n7:non-recursive pre-order traversal \n8:non-recursive post-order traversal \nchoice: ";
+		cin>>ch;
+		switch(ch){
+			case 1:
+			bt.create_nr();
+			break;
+			case 2: 
+			bt.create_r();
+			break;
+			case 3:
+			bt.traversal_ldr();
+			break;
+			case 4:
+			bt.traversal_dlr();
+			break;
+			case 5:
+			bt.traversal_lrd();
+			break;
+			case 6:
+			cout<<"\nnon-recursive in order traversal : ";
+			bt.traversal_nr();
+			break;
+			case 7:
+			cout<<"\nnon-recursive pre order traversal : ";
+			bt.traversal_nr_preorder();
+			break;
+			case 8:
+			cout<<"\nnon-recursive post order traversal : ";
+			bt.traversal_nr_postorder();
+			break;
+		}
+	}while(ch<9);
+	
+	return 0;
+}
