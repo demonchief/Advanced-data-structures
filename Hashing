@@ -1,0 +1,146 @@
+#include<iostream>
+#include<fstream>
+#include<string.h>
+using namespace std;
+
+class Employee{
+	char name[20];
+	int id;
+	int salary;
+	friend class Hashing;
+};
+
+class Hashing{
+	Employee e[10];
+public:
+	Hashing(){
+		Employee e;
+		int i;
+		fstream file("data.txt", ios::out|ios::binary);
+		file.seekp(0,ios::end);
+
+		for(i=0;i<10;i++){
+			e.id =-1;
+			strcpy(e.name,"---");
+			e.salary = -1;
+			file.write((char*)&e,sizeof(e));
+		}
+		file.close();
+	}
+
+	void display_hashtable();
+	void linearprob_wo_rep();
+	void linearprob_w_rep();
+};
+
+
+
+void Hashing::linearprob_wo_rep(){
+	Employee e;
+	int loc,i;
+	char c;
+	fstream file("data.txt",ios::in|ios::out|ios::binary);
+	do{
+		fflush(stdin);
+		file.seekp(0,ios::beg);
+		cout<<"\nEnter id, name and salary: ";
+		cin>>e.id>>e.name>>e.salary;
+		loc = e.id%10;
+		Employee temp;
+		file.seekg((long int)loc*(sizeof(e)),ios::beg);
+		file.read((char*)&temp,sizeof(temp));
+
+		if(temp.id == -1){
+			file.seekp((long int) loc*sizeof(e), ios::beg);
+			file.write((char*)&e,sizeof(e));
+		}
+		else{
+			for(i=(loc+1)%10; i!=loc; i=(i+1)%10){
+				file.seekg((long int) i*sizeof(e),ios::beg);
+				file.read((char*)&temp,sizeof(temp));
+				if(temp.id == -1){
+					file.seekp((long int) i*sizeof(e),ios::beg);
+					file.write((char*)&e,sizeof(e));
+					break;
+				}
+			}
+			if(i==loc) cout<<"Hash Table full";
+		}
+		file.flush();
+		cout<<"\ndo you want to continue? y/n";
+		cin>>c;
+	}while(c=='y');
+	file.close();
+}
+
+
+void Hashing::display_hashtable(){
+	Employee temp;
+	fstream file("data.txt",ios::in|ios::binary);
+	for(int i=0;i<10;i++){
+		file.seekg((long int) i*sizeof(temp),ios::beg);
+		file.read((char*)&temp,sizeof(temp));
+		cout<<"index "<<i<<" : "<<temp.id<<"\t"<<temp.name<<"\t"<<temp.salary<<endl;
+	}
+}
+
+void Hashing::linearprob_w_rep(){
+	Employee e;
+	int loc,i,newloc;
+	char c;
+	fstream file("data.txt",ios::in|ios::out|ios::binary);
+
+	do{
+		fflush(stdin);
+		cout<<"\nEnter id and name";
+		cin>>e.id>>e.name;
+		loc = e.id%10;
+		Employee temp;
+		file.seekg((long int)loc*(sizeof(e)),ios::beg);
+		file.read((char*)&temp,sizeof(temp));
+		if(temp.id == -1){
+			file.seekp((long int) loc*sizeof(e), ios::beg);
+			file.write((char*)&e,sizeof(e));
+		}
+		else{
+			newloc = temp.id%10;
+			if(newloc == loc){
+				for(i=(loc+1)%10; i!=loc; i++){
+					file.seekg((long int) i*sizeof(e), ios::beg);
+					file.read((char*)&temp,sizeof(temp));
+					if(temp.id ==-1){
+						file.seekp((long int) i*sizeof(e),ios::beg);
+						file.write((char*)&e,sizeof(e));
+						break;
+					}
+				}
+			}
+			else{
+				Employee temp1 = temp;
+				file.seekp((long int) loc*sizeof(e),ios::beg);
+				file.write((char*)&e,sizeof(e));
+				for(i=(loc+1)%10; i!=loc; i = (i+1)%10){
+					file.seekg((long int) i*sizeof(e), ios::beg);
+					file.read((char*)&temp,sizeof(temp));
+					if(temp.id ==-1){
+						file.seekp((long int) i*sizeof(e),ios::beg);
+						file.write((char*)&temp1,sizeof(temp1));
+						break;
+					}
+				}
+			}
+			if(i==loc) cout<<"Hashtable Full";
+		}
+		file.flush();
+		cout<<"\nDo you want to continue? y/n ";
+		cin>>c;
+	}while(c=='y');
+}
+
+int main(){
+	cout<<"jello world\n";
+	Hashing h;
+	h.linearprob_wo_rep();
+	h.display_hashtable();
+	return 0;
+}
