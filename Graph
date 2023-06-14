@@ -1,0 +1,251 @@
+#include<iostream>
+using namespace std;
+#define MAX 20
+class gnode{
+	int vertex;
+	string name;
+	gnode *next;
+	public:
+	friend class graph;
+};
+
+class queue{
+	int front;
+	int rear;
+	int q[30];
+	public:
+	queue(){
+		rear = -1;
+		front = -1;
+	}
+	
+	void enqueue(int v){
+		if (rear == 29) cout<<"\nqueue is full";
+		else{
+			rear++;
+			q[rear] = v;
+		}
+	}
+	
+	int dequeue(){
+		int del_ele;
+		if(rear==front) cout<<"\nqueue is empty";
+		else{
+			front++;
+			del_ele = q[front];
+		}
+		return del_ele;
+	}
+	
+	int isEmpty(){
+		if(rear ==front) return 1;
+		else return 0;
+	}
+};
+
+class stack{
+	int top;
+	int st[30];
+	public:
+	stack(){
+		top = -1;
+	}
+	
+	void push(int ele){
+		if(top ==29){
+			cout<<"\nstack full";
+		}
+		else {
+			top= top+1;
+			st[top] = ele;
+		}
+	}
+	
+	int pop(){
+	
+		int pop_ele;
+		if (top == -1){
+			cout<<"\nstack is empty";
+		}
+		else{
+			pop_ele = st[top];
+			top = top-1;
+		}
+		return pop_ele;
+	}
+	
+	int isEmpty(){
+		if(top ==-1) return 1;
+		else return 0;
+	}
+
+
+};
+
+
+class graph{
+	int n;
+	gnode *head[MAX];
+	int visited[MAX];
+	public:
+	graph(){
+		cout<<"\nenter number of people on facebook: ";
+		cin>>n;
+		for(int i=0;i<n;i++){
+			head[i] = new gnode;
+			head[i]->vertex = i;
+			cout<<"\nenter facebook friend at node "<<i<<" : ";
+			cin>>head[i]->name;
+			head[i]->next = NULL;
+			visited[i] = 0;
+		}
+	}
+	
+	void erase_visited(){
+		for(int i=0;i<n;i++){
+			visited[i] = 0;
+		}
+	}
+	
+	void create(){
+		char ch;
+		gnode *temp,*curr;
+		for(int i = 0;i<n;i++){
+			temp = head[i];
+			do{
+				curr = new gnode;
+				cout<<"\nenter facebook person who is friends with person "<<i<<head[i]->name<<": ";
+				cin>>curr->vertex;
+				curr->name = head[curr->vertex]->name;
+				curr->next = NULL;
+				temp->next = curr;
+				temp = curr;
+				cout<<"\nis there another person who is friends with person "<<i<<head[i]->name<<" ? press y if yes : ";
+				cin>>ch;
+			}while(ch == 'y');
+		}
+	}
+	
+	
+	void display(){
+		gnode *curr;
+		for(int i = 0;i<n;i++){
+			curr = head[i];
+			cout<<"node "<<curr->vertex<<curr->name<<" : ";
+			curr = curr->next;
+			while(curr->next!=NULL){
+				cout<<curr->vertex<<curr->name<<" --> ";
+				curr = curr->next;
+			}
+			cout<<curr->vertex<<curr->name<<endl;
+		}
+	}
+	
+	
+	void dfs_r(){
+		int stv;
+		cout<<"\naccept starting vertex: ";
+		cin>>stv;
+		cout<<"\nRecursive Depth First Traversal: ";
+		dfs_r(stv);
+	}
+	
+	void dfs_r(int v){
+		gnode *curr;
+		cout<<v<<"\t";
+		visited[v] = 1;
+		curr = head[v];
+		while(curr!=NULL){
+			if(visited[curr->vertex] == 0) dfs_r(curr->vertex);
+			curr = curr->next;
+		}
+	}
+	
+	void dfs_nr(){
+		stack s;
+		int v;
+		cout<<"\naccept starting vertex: ";
+		cin>>v;
+		gnode *curr;
+		curr = head[v];
+		s.push(v);
+		visited[v] = 1;
+		cout<<"\nNon-Recursive Depth First Traversal: ";
+		while(!s.isEmpty()){
+			v = s.pop();
+			cout<<v<<"\t";
+			curr = head[v]->next;
+			while(curr!=NULL){
+				if(visited[curr->vertex] == 0){
+					s.push(curr->vertex);
+					visited[curr->vertex] = 1;
+				}
+				curr = curr->next;
+			}
+			
+		}
+		cout<<endl;
+	}
+	
+	
+	void bfs_nr(){
+		queue q;
+		int v;
+		cout<<"\nenter starting vertex: ";
+		cin>>v;
+		gnode *curr;
+		curr = head[v];
+		q.enqueue(v);
+		visited[v] = 1;
+		cout<<"\nBreadth First Traversal: ";
+		while(!q.isEmpty()){
+			v = q.dequeue();
+			cout<<v<<"\t";
+			curr = head[v]->next;
+			while(curr!=NULL){
+				if(visited[curr->vertex] == 0){
+					q.enqueue(curr->vertex);
+					visited[curr->vertex] = 1;
+				}
+				curr = curr->next;
+			}
+		}
+		cout<<endl;
+	}
+	
+};
+
+
+
+
+int main(){
+	cout<<"jello world\n";
+	graph g;
+	int ch;
+	do{
+		cout<<"\nchoose operation:\n1:create\t2:recursive dfs\t3:non-recursive dfs\t4:non-recursive bfs\nchoice: ";
+		cin>>ch;
+		
+		switch(ch){
+			case 1:
+				g.create();
+				g.display();
+				break;
+			case 2:
+				g.dfs_r();
+				g.erase_visited();
+				break;
+			case 3:
+				g.dfs_nr();
+				g.erase_visited();
+				break;
+			case 4:
+				g.bfs_nr();
+				g.erase_visited();
+				break;
+		}
+		
+	}while (ch <5);
+	
+	return 0;
+}
